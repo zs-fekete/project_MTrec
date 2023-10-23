@@ -22,12 +22,15 @@ parser.add_argument('--minstretch', type = int, default = 2,
 parser.add_argument('--opposite', nargs = '*', type = str,
                     default = ['14189', '14366'],
                     help = 'SNPs called, but more prominent in default type')
+parser.add_argument('--minscore', type = int, default = 2,
+                    help = 'Minimum score to consider a read a positive hit')
 
 #options to add
 #parser.add_argument('--return_score') - 
 
 args = parser.parse_args()
 
+print('Reading data...')
 #cigar tags to exclude to get reference coordinates
 ref_exclude = [4, 1, 5, 6, 8]
 
@@ -43,12 +46,15 @@ read_info = [ (read.query_name,
 
 var = sq.get_variants(args.vcffile)
 
-print(args.opposite)
-print(args.out_positive)
-print(args.bamfile)
-print(args.vcffile)
-print(args.minstretch)
-print(args.out_negative)
+print('Input files:')
+print(f'\t{args.bamfile}')
+print(f'\t{args.vcffile}')
+print(f'Output file:\n\t {args.out_positive}')
+print(f'Switched SNPs: {args.opposite}')
+print(f'Minimum length of type to score positively: {args.minstretch}')
+print(f'Outputting negative results: {args.out_negative}')
+
+print('Processing...')
 
 complete_reads = collections.defaultdict(lambda : [])
 
@@ -68,15 +74,15 @@ for read in read_info:
         fullreaddic[read[0]] = readdic
     #print(readdic)
 
+print('Writing output...')
 with open(args.out_positive, 'w') as out:
     out.write(f'read\tcigar\tresult\n')
     with open('negative.out', 'w') as neg:
         for read, readdic in fullreaddic.items():
             ps_cigar = sq.read_summary(list(readdic.values()))
-            res = sq.rec_possible(ps_cigar, args.minstretch)
+            res = sq.rec_possible(ps_cigar, args.minstretch, args.minscore)
             
-            if res == 'True':
-                out.write(f'{read}\t' + ''.join(ps_cigar) + f'\t{res}\n')
+            if res[0] == 'True':
+                out.write(f'{read}\t' + ''.join(ps_cigar) + '\t' + '\t'.join(res) + '\n')
             else:
-                neg.write(f'{read}\t' + ''.join(ps_cigar) + f'\t{res}\n')
-
+                neg.write(f'{read}\t' + ''.join(ps_cigar) + '\t' + '\t'.join(res) + '\n')

@@ -97,8 +97,9 @@ def read_summary(pseudoseq):
     return(result)
 
 #Very basic check for recombination possibility
-def rec_possible(ps_cigar, minstretch):
+def rec_possible(ps_cigar, minstretch, minscore):
     """Scoring the possibility of recombination"""
+
     score = 0
     if len(ps_cigar) > 2:
         for i in ps_cigar[1::2]:
@@ -107,10 +108,10 @@ def rec_possible(ps_cigar, minstretch):
                 score += 1
             elif int(i) == 1:
                 score -= 1
-    if score >= 2:
-        return("True")
+    if score >= minscore:
+        return(["True", str(score)])
     else:
-        return("False")
+        return(["False", str(score)])
     
 
 def opposite_snps(opposite, readdic):
