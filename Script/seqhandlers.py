@@ -97,18 +97,24 @@ def read_summary(pseudoseq):
     return(result)
 
 #Very basic check for recombination possibility
-def rec_possible(ps_cigar):
-    stretch = []
-    for i in range(1,len(ps_cigar),2):
-        if int(ps_cigar[i]) > 1:
-            stretch.append(ps_cigar[i-1])
-    
-    if len(collections.Counter(stretch)) > 1:
+def rec_possible(ps_cigar, minstretch):
+    """Scoring the possibility of recombination"""
+    score = 0
+    if len(ps_cigar) > 2:
+        for i in ps_cigar[1::2]:
+            #print(i)
+            if int(i) >= minstretch:
+                score += 1
+            elif int(i) == 1:
+                score -= 1
+    if score >= 2:
         return("True")
     else:
         return("False")
+    
 
 def opposite_snps(opposite, readdic):
+    """Called snps that are actually in the ref type"""
     for pos, base in readdic.items():
         if pos in opposite:
             if readdic[pos] == "A":
