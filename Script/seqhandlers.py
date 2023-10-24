@@ -46,30 +46,30 @@ def snp_coordinates(read, exclusion):
                 
     return(rq_snps)
 
-def nonsnp_coordinates(vars, read, rq_snps):
+def nonsnp_coordinates(var, read, rq_snps):
     """Get variant positions with no actual variant"""
-    non_snps = [var[1] for var in vars
-                if int(var[1]) < read[2] and
-                int(var[1]) > read[1]
-                and int(var[1]) not in rq_snps]
+    non_snps = [va[1] for va in var
+                if int(va[1]) < read[2] and
+                int(va[1]) > read[1]
+                and int(va[1]) not in rq_snps]
 
     non_snps = non_snps
     return(non_snps)
 
-def create_readdic(vars, read, ref_snps, non_snps):
+def create_readdic(var, read, ref_snps, non_snps):
     """Generic sequence creator"""
     readseq = ""
     readcoords = ""
     
-    readseq = [readseq + var[3] for var in vars
-              if int(var[1]) > read[1] #start
-              and int(var[1]) < read[2]] #end
-    readcoords = [readcoords + var[1] for var in vars
-                  if int(var[1]) > read[1]
-                  and int(var[1]) < read[2]]
+    readseq = [readseq + va[3] for va in var
+              if int(va[1]) > read[1] #start
+              and int(va[1]) < read[2]] #end
+    readcoords = [readcoords + va[1] for va in var
+                  if int(va[1]) > read[1]
+                  and int(va[1]) < read[2]]
     read_dic = dict(zip(readcoords, readseq))
 
-    for pos, var in read_dic.items():  #check if this works as intended
+    for pos, va in read_dic.items():  #check if this works as intended
         if pos in non_snps:
             read_dic[pos] = "A"
         elif int(pos) in ref_snps:

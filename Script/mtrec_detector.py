@@ -4,6 +4,7 @@ import sys, argparse, os
 import collections
 import bamnostic as bs
 import seqhandlers as sq
+import ioprocessing as io
 
 parser = argparse.ArgumentParser()
 
@@ -56,23 +57,9 @@ print(f'Outputting negative results: {args.out_negative}')
 
 print('Processing...')
 
-complete_reads = collections.defaultdict(lambda : [])
+#complete_reads = collections.defaultdict(lambda : [])
 
-readnames = list(set([read[0] for read in read_info]))
-fullreaddic = {readname : [] for readname in readnames}
-
-for read in read_info:
-    ref_snps = sq.snp_coordinates(read, ref_exclude)
-    nonsnps = sq.nonsnp_coordinates(var, read, ref_snps)
-        
-    readdic = sq.opposite_snps(args.opposite,
-                            sq.create_readdic(var, read, ref_snps, nonsnps))
-
-    if len(fullreaddic[read[0]]) != 0:
-        fullreaddic[read[0]] = fullreaddic[read[0]] | readdic
-    else:
-        fullreaddic[read[0]] = readdic
-    #print(readdic)
+fullreaddic = io.create_full_dic(read_info, var, args.opposite)
 
 print('Writing output...')
 with open(args.out_positive, 'w') as out:
