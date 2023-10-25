@@ -73,3 +73,4 @@ with open(args.out_positive, 'w') as out:
                 out.write(f'{read}\t' + ''.join(ps_cigar) + '\t' + '\t'.join(res) + '\n')
             else:
                 neg.write(f'{read}\t' + ''.join(ps_cigar) + '\t' + '\t'.join(res) + '\n')
+
