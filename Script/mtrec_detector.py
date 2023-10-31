@@ -57,20 +57,30 @@ print(f'Outputting negative results: {args.out_negative}')
 
 print('Processing...')
 
-#complete_reads = collections.defaultdict(lambda : [])
 
 fullreaddic = io.create_full_dic(read_info, var, args.opposite)
+filtdic = io.filter_readdic(fullreaddic, args.minstretch, args.minscore)
+delta = sq.supporting_reads(read_info)
+#print(delta)
 
 print('Writing output...')
 with open(args.out_positive, 'w') as out:
-    out.write(f'read\tcigar\tresult\n')
+    out.write(f'read\tcigar\tresult\tscore\ttype\n')
+    for read, info in filtdic.items():
+        if read in delta:
+            out.write(read+'\t'+''.join(info[1])+'\t'+'\t'.join(info[2])+'\tdelta\n')
+        else:
+            out.write(read+'\t'+''.join(info[1])+'\t'+'\t'.join(info[2])+'\twt\n')
+            
+if args.out_negative:
     with open('negative.out', 'w') as neg:
+        neg.write(f'read\tcigar\tresult\tscore\ttype\n')
         for read, readdic in fullreaddic.items():
             ps_cigar = sq.read_summary(list(readdic.values()))
             res = sq.rec_possible(ps_cigar, args.minstretch, args.minscore)
-            
-            if res[0] == 'True':
-                out.write(f'{read}\t' + ''.join(ps_cigar) + '\t' + '\t'.join(res) + '\n')
-            else:
-                neg.write(f'{read}\t' + ''.join(ps_cigar) + '\t' + '\t'.join(res) + '\n')
 
+            if res[0] == 'False':
+                if read in delta:
+                    neg.write(f'{read}\t' + ''.join(ps_cigar) + '\t' + '\t'.join(res) + '\tdelta\n')
+                else:
+                    neg.write(f'{read}\t' + ''.join(ps_cigar) + '\t' + '\t'.join(res) + '\twt\n')

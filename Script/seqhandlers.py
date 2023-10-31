@@ -124,3 +124,20 @@ def opposite_snps(opposite, readdic):
                 readdic[pos] = "A"
 
     return(readdic)
+
+#Check for deletion type
+def supporting_reads(read_info):
+    """Get delta info"""
+    
+    delstart = 10522
+    delend = 16287
+    #Get all reads contained in the circ region
+    
+    suppreads = []
+    #if read ends at delstart or starts at delend
+    for read in read_info:
+        if read[2] == 10522 or read[1] == 15487:
+            if read[0] not in suppreads:
+                suppreads.append(read[0])
+    
+    return(suppreads)

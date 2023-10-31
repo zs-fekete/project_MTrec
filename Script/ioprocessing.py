@@ -25,3 +25,31 @@ def create_full_dic(read_info, var, opposite):
             fullreaddic[read[0]] = readdic
 
     return(fullreaddic)
+
+#Filtering
+def filter_readdic(fullreaddic, minstretch, minscore):
+    """Filter interesting reads from all"""
+    filtereddic = collections.defaultdict(lambda : [])
+    
+    for read, readdic in fullreaddic.items():
+        ps_cigar = sq.read_summary(list(readdic.values()))
+        res = sq.rec_possible(ps_cigar, minstretch, minscore)
+
+        if res[0] == 'True':
+            filtereddic[read] = [readdic, ps_cigar, res]
+
+    return(filtereddic)
+
+#Data for plotting
+def plot_data(fullreaddic):
+    """Create tsv that makes plotting easy"""
+    data = [[k, a, b]
+            for k, v in fullreaddic.items()
+           for a, b in v.items()]
+    
+    return(data)
+
+#Output
+def dicprint(filtdic):
+    f.open()
+    out.write(f'{read}\t' + ''.join(ps_cigar) + '\t' + '\t'.join(res) + '\n')
