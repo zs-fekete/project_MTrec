@@ -15,7 +15,7 @@ parser.add_argument('-p', '--out_positive',
                     help = 'filename for positive hit output')
 
 #Optional
-parser.add_argument('--out_negative', #momentarily doesn't do anything
+parser.add_argument('--out_negative',
                     action = 'store_true',
                     help = 'output negative results, too')
 parser.add_argument('--minstretch', type = int, default = 2,
@@ -26,8 +26,8 @@ parser.add_argument('--opposite', nargs = '*', type = str,
 parser.add_argument('--minscore', type = int, default = 2,
                     help = 'Minimum score to consider a read a positive hit')
 
-#options to add
-#parser.add_argument('--return_score') - 
+parser.add_argument('--plotdata', action = 'store_true',
+                    help = 'Output per site data for plotting')
 
 args = parser.parse_args()
 
@@ -84,3 +84,15 @@ if args.out_negative:
                     neg.write(f'{read}\t' + ''.join(ps_cigar) + '\t' + '\t'.join(res) + '\tdelta\n')
                 else:
                     neg.write(f'{read}\t' + ''.join(ps_cigar) + '\t' + '\t'.join(res) + '\twt\n')
+
+if args.plotdata:
+    dat = io.plot_data(fullreaddic)
+    with open('plotdata.tsv', 'w') as pld:
+        for line in dat:
+            pld.write("\t".join(str(i) for i in line))
+            if line[0] in delta:
+                pld.write('\tdelta\n')
+            else:
+                pld.write('\twt\n')
+
+
